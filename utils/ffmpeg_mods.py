@@ -32,7 +32,7 @@ def build_ffmpeg_command(input_path, output_path):
     vfilter = ",".join([
         "crop=iw-2:ih-2",
         "pad=iw+2:ih+2:1:1",
-        "drawbox=x=10:y=10:w=5:h=5:color=white@0.001:t=max",
+        "drawbox=x=10:y=10:w=5:h=5:color=white@0.001:t=fill",  # ✅ FIXED here
         "noise=alls=10:allf=t+u",
         "eq=brightness=0.01:contrast=1.01",
         "hue=s=1.01"
