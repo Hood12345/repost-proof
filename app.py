@@ -3,6 +3,7 @@ import os
 import uuid
 import subprocess
 import traceback
+import time
 from utils.ffmpeg_mods import build_ffmpeg_command
 
 app = Flask(__name__)
@@ -49,7 +50,8 @@ def repost_proof():
             result_json["url"] = public_link
             return jsonify(result_json)
         else:
-            return send_file(output_path, as_attachment=True, download_name="repost_safe.mp4")
+            download_name = f"hco_{int(time.time())}.mp4"
+            return send_file(output_path, as_attachment=True, download_name=download_name)
 
     except Exception as e:
         print("[EXCEPTION] Something went wrong during processing:")
