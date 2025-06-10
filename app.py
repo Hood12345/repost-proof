@@ -1,8 +1,12 @@
 from flask import Flask, request, send_file, jsonify
-import os, uuid, shutil
+import os
+import uuid
+import subprocess
 from utils.ffmpeg_mods import build_ffmpeg_command
 
 app = Flask(__name__)
+
+# Temp directory for input/output
 UPLOAD_DIR = "/tmp/repostproof"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
@@ -44,7 +48,8 @@ def repost_proof():
     finally:
         try:
             os.remove(input_path)
-        except: pass
+        except:
+            pass
 
 @app.route("/file-download/<filename>")
 def download_file(filename):
@@ -54,5 +59,6 @@ def download_file(filename):
     else:
         return "File not found", 404
 
+# ✅ This line is REQUIRED for Railway deployment
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False, host="0.0.0.0", port=5000)
