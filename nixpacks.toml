@@ -1,12 +1,2 @@
 [phases.setup]
-aptPkgs = [
-  "software-properties-common"
-]
-
-[phases.install]
-cmds = [
-  # Add the “jonathonf” FFmpeg PPA (Ubuntu) or swap for Debian bullseye-backports
-  "add-apt-repository ppa:jonathonf/ffmpeg-4 -y",
-  "apt-get update -y",
-  "apt-get install -y ffmpeg"
-]
+packages = ["ffmpeg", "python3", "gcc"]
