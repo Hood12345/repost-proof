@@ -1,16 +1,14 @@
+[variables]
+NIXPACKS_PYTHON_VERSION = "3.11"
+
 [phases.setup]
-nixpkgs = ["python311Full", "curl", "gcc", "cacert"]
+packages = ["curl", "gcc", "cacert"]
 
 [phases.install]
 cmds = [
-  # 1) Download static FFmpeg with every filter enabled
   'curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o /tmp/ffmpeg.tar.xz',
-
-  # 2) Extract only ffmpeg & ffprobe into /usr/local
   'tar -xJf /tmp/ffmpeg.tar.xz --wildcards --strip-components=1 -C /usr/local "*/ffmpeg" "*/ffprobe"',
   'chmod +x /usr/local/ffmpeg /usr/local/ffprobe',
-
-  # 3) Install Python requirements
-  'python3.11 -m pip install --upgrade pip',
-  'python3.11 -m pip install --no-cache-dir -r requirements.txt'
+  'python3 -m pip install --upgrade pip',
+  'python3 -m pip install --no-cache-dir -r requirements.txt'
 ]
