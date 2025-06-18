@@ -18,7 +18,6 @@ def generate_valid_lut3d_file() -> str:
         for r in [0.0, 1.0]:
             for g in [0.0, 1.0]:
                 for b in [0.0, 1.0]:
-                    # Tiny color variation within safe range
                     dr = max(0.0, min(1.0, r + random.uniform(-0.005, 0.005)))
                     dg = max(0.0, min(1.0, g + random.uniform(-0.005, 0.005)))
                     db = max(0.0, min(1.0, b + random.uniform(-0.005, 0.005)))
@@ -57,7 +56,8 @@ def build_ffmpeg_command(input_path: str, output_path: str):
         f"eq=brightness={bri}:contrast={con}:saturation={sat}",
         "unsharp=5:5:0.8:5:5:0.0",
         "deband",
-        "format=yuv420p"
+        "format=yuv420p",
+        "scale=trunc(iw/2)*2:trunc(ih/2)*2"  # ✅ Ensure even dimensions
     ]
 
     vf = ",".join(filter(None, vf_filters))
