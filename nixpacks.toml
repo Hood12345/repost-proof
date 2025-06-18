@@ -1,21 +1,19 @@
-# nixpacks.toml  ─ full-feature static FFmpeg + Python
-
 [phases.setup]
 packages = [
-  "curl",          # download static FFmpeg archive
+  "curl",
   "ca-certificates",
-  "python3",       # your original wants explicit python3
-  "gcc"            # your original list
+  "python3",
+  "gcc"
 ]
 
 [phases.install]
 cmds = [
-  # 1) Download the latest static build (≈ 30 MB) with every filter enabled
-  "curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o /tmp/ffmpeg.tar.xz",
-  # 2) Extract only ffmpeg & ffprobe binaries to /usr/local/bin
-  \"tar -xJf /tmp/ffmpeg.tar.xz --wildcards --strip-components=1 -C /usr/local '*/ffmpeg' '*/ffprobe'\",
-  "chmod +x /usr/local/ffmpeg /usr/local/ffprobe",
+  # 1) Download static FFmpeg with every filter enabled
+  'curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o /tmp/ffmpeg.tar.xz',
+  # 2) Extract only ffmpeg & ffprobe into /usr/local/bin
+  'tar -xJf /tmp/ffmpeg.tar.xz --wildcards --strip-components=1 -C /usr/local "*/ffmpeg" "*/ffprobe"',
+  'chmod +x /usr/local/ffmpeg /usr/local/ffprobe',
   # 3) Python dependencies
-  "pip install --upgrade pip",
-  "pip install --no-cache-dir -r requirements.txt"
+  'pip install --upgrade pip',
+  'pip install --no-cache-dir -r requirements.txt'
 ]
