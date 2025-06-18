@@ -1,5 +1,5 @@
 # utils/ffmpeg_mods.py
-import random, subprocess, uuid, os
+import random, subprocess, uuid
 
 # ───────────────────────────────────────────────────────── helpers
 def has_rubberband() -> bool:
@@ -15,8 +15,7 @@ def build_ffmpeg_command(input_path: str, output_path: str):
     """
     Return (ffmpeg_cmd_list, pitch_preserved_bool)
     Provides strong anti-fingerprint randomisation while
-    guaranteeing the picture looks identical (no yellow wash /
-    blank frames).
+    guaranteeing the picture stays visually identical.
     """
 
     # 0. Encode randomness ---------------------------------------------------
@@ -41,7 +40,7 @@ def build_ffmpeg_command(input_path: str, output_path: str):
         f.write("LUT_3D_SIZE 2\n0 0 0\n")
         f.write(f"{dr} {dg} {db}\n")
 
-    # Pad / drawbox from your legacy chain
+    # Pad / drawbox from legacy chain
     crop_pad_draw = (
         "crop=iw-2:ih-2,"
         "pad=iw+2:ih+2:1:1,"
@@ -54,7 +53,8 @@ def build_ffmpeg_command(input_path: str, output_path: str):
         f"setpts=PTS+{frame_shift}/TB" if frame_shift else "",
         # Work in RGB for risky filters, then back to YUV
         "format=rgb24",
-        f"tblend=all_mode=average,select='not(mod(n\\,{flip_intvl}))',hflip,"
+        # **FIXED** single quotes removed around select expression ↓
+        f"tblend=all_mode=average,select=not(mod(n\\,{flip_intvl})),hflip,"
         f"tblend=all_mode=average",
         f"lut3d={lut_path}",
         "format=yuv420p",
@@ -80,7 +80,7 @@ def build_ffmpeg_command(input_path: str, output_path: str):
         afilters.insert(0, f"rubberband=tempo={tempo}")
 
     af = ",".join(afilters)
-    pitch_preserved = False
+    pitch_preserved = False  # micro-shift alters pitch ~0.07 %
 
     # 3. Final command -------------------------------------------------------
     cmd = [
