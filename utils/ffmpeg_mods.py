@@ -74,7 +74,7 @@ def build_ffmpeg_command(input_path: str, output_path: str):
         "format=yuv420p"
     ]
 
-    vf = ",".join(filter(None, vf_filters))
+    vf = ",".join(filter(None, vf_filters))  # ✅ Removes empty filters
 
     # 2. Audio random --------------------------------------------------------
     tempo  = round(random.uniform(0.987, 1.013), 3)
