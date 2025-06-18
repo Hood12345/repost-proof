@@ -1,5 +1,6 @@
 import random, subprocess, uuid, os
 
+# ───────────────────────────────────────── helpers
 def has_rubberband() -> bool:
     try:
         out = subprocess.check_output(["ffmpeg", "-filters"], stderr=subprocess.DEVNULL)
@@ -23,23 +24,24 @@ def generate_valid_lut3d_file() -> str:
                     f.write(f"{dr:.6f} {dg:.6f} {db:.6f}\n")
     return lut_path
 
+# ───────────────────────────────────────── builder
 def build_ffmpeg_command(input_path: str, output_path: str):
     crf = random.choice([22, 23, 24])
     gop = random.choice([24, 48, 72])
 
-    zoom        = round(random.uniform(1.015, 1.02), 3)
-    frame_shift = random.randint(-1, 1)
-    noise_s     = random.randint(1, 2)
-    sat         = round(random.uniform(0.995, 1.01), 3)
-    bri         = round(random.uniform(0.997, 1.01), 3)
-    con         = round(random.uniform(1.00, 1.015), 3)
-    flip_intvl  = random.randint(90, 120)
+    zoom = round(random.uniform(1.015, 1.025), 3)
+    frame_shift = random.randint(-2, 2)
+    noise_s = random.randint(1, 2)
+    sat = round(random.uniform(0.995, 1.01), 3)
+    bri = round(random.uniform(0.997, 1.01), 3)
+    con = round(random.uniform(1.00, 1.015), 3)
+    flip_intvl = random.randint(90, 120)
 
     lut_path = generate_valid_lut3d_file()
 
     crop_pad_draw = (
-        "crop=iw-2:ih-2,"  # minor crop
-        "pad=iw+2:ih+2:1:1,"  # pad back
+        "crop=iw-2:ih-2,"
+        "pad=iw+2:ih+2:1:1,"
         "drawbox=x=10:y=10:w=5:h=5:color=white@0.001:t=fill"
     )
 
@@ -56,22 +58,19 @@ def build_ffmpeg_command(input_path: str, output_path: str):
         "format=yuv420p",
         "scale=trunc(iw/2)*2:trunc(ih/2)*2"
     ]
-
     vf = ",".join(filter(None, vf_filters))
 
-    tempo  = round(random.uniform(0.987, 1.013), 3)
-    micro  = round(random.uniform(0.9993, 1.0007), 6)
+    tempo = round(random.uniform(0.987, 1.013), 3)
+    micro = round(random.uniform(0.9993, 1.0007), 6)
 
     afilters = [
+        f"rubberband=tempo={tempo}" if has_rubberband() else None,
         f"atempo={tempo}",
         f"asetrate=44100*{micro},aresample=44100",
         "equalizer=f=200:t=q:w=1:g=1",
         "dcshift=0.01:0"
     ]
-    if has_rubberband():
-        afilters.insert(0, f"rubberband=tempo={tempo}")
-
-    af = ",".join(afilters)
+    af = ",".join(filter(None, afilters))
 
     cmd = [
         "ffmpeg", "-hide_banner", "-y",
@@ -86,4 +85,5 @@ def build_ffmpeg_command(input_path: str, output_path: str):
         output_path
     ]
 
-    return cmd, False
+    pitch_preserved = has_rubberband()
+    return cmd, pitch_preserved
