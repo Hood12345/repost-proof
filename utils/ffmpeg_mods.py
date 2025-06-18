@@ -47,7 +47,7 @@ def build_ffmpeg_command(input_path: str, output_path: str):
 
     flip_intvl  = random.randint(90, 120)
 
-    # ✅ Valid LUT file
+    # ✅ Generate valid LUT file
     lut_path = generate_valid_lut3d_file()
 
     # Pad / drawbox from legacy chain
@@ -58,7 +58,7 @@ def build_ffmpeg_command(input_path: str, output_path: str):
     )
 
     # ---------- build video graph ------------------------------------------
-    vf = ",".join([
+    vf_filters = [
         f"scale=iw*{zoom}:ih*{zoom},crop=iw/{zoom}:ih/{zoom}",
         f"setpts=PTS+{frame_shift}/TB" if frame_shift else "",
         "format=rgb24",
@@ -72,7 +72,9 @@ def build_ffmpeg_command(input_path: str, output_path: str):
         "unsharp=5:5:0.8:5:5:0.0",
         "deband",
         "format=yuv420p"
-    ])
+    ]
+
+    vf = ",".join(filter(None, vf_filters))
 
     # 2. Audio random --------------------------------------------------------
     tempo  = round(random.uniform(0.987, 1.013), 3)
