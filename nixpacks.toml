@@ -1,22 +1,27 @@
-# nixpacks.toml  – Python + full-feature FFmpeg (tblend, lut3d, rubberband)
+# nixpacks.toml  – full-feature FFmpeg build + Python
 
+###############################################################################
+# 1. Base packages you wanted                                                 #
+###############################################################################
 [phases.setup]
-packages = [
-  "ffmpeg",                      # minimal FFmpeg (overwritten later)
-  "python3",
-  "gcc",
-  "software-properties-common",  # lets us add a PPA
-  "curl",
-  "ca-certificates"
-]
+packages = ["ffmpeg", "python3", "gcc", "curl", "ca-certificates"]
 
+###############################################################################
+# 2. Install phase – get full FFmpeg 6.x from PPA                             #
+###############################################################################
 [phases.install]
 cmds = [
-  # Install full-filter FFmpeg 6.x
+  # install software-properties-common so we get add-apt-repository
+  "apt-get update -y && apt-get install -y software-properties-common",
+  # add the PPA that ships ffmpeg with tblend, lut3d, rubberband, etc.
   "add-apt-repository -y ppa:jonathonf/ffmpeg-6",
   "apt-get update -y",
   "apt-get install -y ffmpeg",
-  # Python dependencies
+  # python deps
   "pip install --upgrade pip",
   "pip install --no-cache-dir -r requirements.txt"
 ]
+
+###############################################################################
+# 3. Procfile already starts `python app.py`, so no [start] block needed      #
+###############################################################################
