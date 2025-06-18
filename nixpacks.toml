@@ -1,27 +1,21 @@
-# nixpacks.toml  – full-feature FFmpeg build + Python
+# nixpacks.toml  ─ full-feature static FFmpeg + Python
 
-###############################################################################
-# 1. Base packages you wanted                                                 #
-###############################################################################
 [phases.setup]
-packages = ["ffmpeg", "python3", "gcc", "curl", "ca-certificates"]
+packages = [
+  "curl",          # download static FFmpeg archive
+  "ca-certificates",
+  "python3",       # your original wants explicit python3
+  "gcc"            # your original list
+]
 
-###############################################################################
-# 2. Install phase – get full FFmpeg 6.x from PPA                             #
-###############################################################################
 [phases.install]
 cmds = [
-  # install software-properties-common so we get add-apt-repository
-  "apt-get update -y && apt-get install -y software-properties-common",
-  # add the PPA that ships ffmpeg with tblend, lut3d, rubberband, etc.
-  "add-apt-repository -y ppa:jonathonf/ffmpeg-6",
-  "apt-get update -y",
-  "apt-get install -y ffmpeg",
-  # python deps
+  # 1) Download the latest static build (≈ 30 MB) with every filter enabled
+  "curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o /tmp/ffmpeg.tar.xz",
+  # 2) Extract only ffmpeg & ffprobe binaries to /usr/local/bin
+  \"tar -xJf /tmp/ffmpeg.tar.xz --wildcards --strip-components=1 -C /usr/local '*/ffmpeg' '*/ffprobe'\",
+  "chmod +x /usr/local/ffmpeg /usr/local/ffprobe",
+  # 3) Python dependencies
   "pip install --upgrade pip",
   "pip install --no-cache-dir -r requirements.txt"
 ]
-
-###############################################################################
-# 3. Procfile already starts `python app.py`, so no [start] block needed      #
-###############################################################################
