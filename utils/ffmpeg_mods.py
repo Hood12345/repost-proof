@@ -1,5 +1,4 @@
-# utils/ffmpeg_mods.py
-import random, subprocess, uuid
+import random, subprocess, uuid, os
 
 # ───────────────────────────────────────────────────────── helpers
 def has_rubberband() -> bool:
@@ -9,6 +8,21 @@ def has_rubberband() -> bool:
     except Exception:
         return False
 
+def generate_valid_lut3d_file() -> str:
+    lut_path = f"/tmp/lut_{uuid.uuid4().hex}.cube"
+    with open(lut_path, "w") as f:
+        f.write("TITLE \"Random 2x2x2 LUT\"\n")
+        f.write("LUT_3D_SIZE 2\n")
+        f.write("DOMAIN_MIN 0.0 0.0 0.0\n")
+        f.write("DOMAIN_MAX 1.0 1.0 1.0\n")
+        for r in [0.0, 1.0]:
+            for g in [0.0, 1.0]:
+                for b in [0.0, 1.0]:
+                    dr = max(0.0, min(1.0, r + random.uniform(-0.01, 0.01)))
+                    dg = max(0.0, min(1.0, g + random.uniform(-0.01, 0.01)))
+                    db = max(0.0, min(1.0, b + random.uniform(-0.01, 0.01)))
+                    f.write(f"{dr:.6f} {dg:.6f} {db:.6f}\n")
+    return lut_path
 
 # ───────────────────────────────────────────────────────── builder
 def build_ffmpeg_command(input_path: str, output_path: str):
@@ -33,12 +47,8 @@ def build_ffmpeg_command(input_path: str, output_path: str):
 
     flip_intvl  = random.randint(90, 120)
 
-    # Tiny 3×3×3 LUT
-    dr, dg, db = [random.randint(-2, 2) / 255 for _ in range(3)]
-    lut_path = f"/tmp/lut_{uuid.uuid4().hex}.cube"
-    with open(lut_path, "w") as f:
-        f.write("LUT_3D_SIZE 2\n0 0 0\n")
-        f.write(f"{dr} {dg} {db}\n")
+    # ✅ Valid LUT file
+    lut_path = generate_valid_lut3d_file()
 
     # Pad / drawbox from legacy chain
     crop_pad_draw = (
@@ -51,11 +61,9 @@ def build_ffmpeg_command(input_path: str, output_path: str):
     vf = ",".join([
         f"scale=iw*{zoom}:ih*{zoom},crop=iw/{zoom}:ih/{zoom}",
         f"setpts=PTS+{frame_shift}/TB" if frame_shift else "",
-        # Work in RGB for risky filters, then back to YUV
         "format=rgb24",
-        # **FIXED** single quotes removed around select expression ↓
-        f"tblend=all_mode=average,select=not(mod(n\\,{flip_intvl})),hflip,"
-        f"tblend=all_mode=average",
+        f"tblend=all_mode=average,select=not(mod(n\\,{flip_intvl})),hflip," if flip_intvl else "",
+        "tblend=all_mode=average" if flip_intvl else "",
         f"lut3d={lut_path}",
         "format=yuv420p",
         crop_pad_draw,
