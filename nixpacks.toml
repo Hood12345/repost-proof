@@ -1,29 +1,22 @@
-# nixpacks.toml  ── Python + full-filter FFmpeg build
+# nixpacks.toml  – Python + full-feature FFmpeg (tblend, lut3d, rubberband)
 
-###############################################################################
-# 1. Base packages (your original list)                                       #
-###############################################################################
 [phases.setup]
-# These three packages give you a working compiler toolchain and the distro’s
-# minimal ffmpeg, which is fine for the build script below.
-packages = ["ffmpeg", "python3", "gcc", "software-properties-common", "curl", "ca-certificates"]
+packages = [
+  "ffmpeg",                      # minimal FFmpeg (overwritten later)
+  "python3",
+  "gcc",
+  "software-properties-common",  # lets us add a PPA
+  "curl",
+  "ca-certificates"
+]
 
-###############################################################################
-# 2. Install phase – pull the full-feature FFmpeg from Jonathon-f PPA         #
-###############################################################################
 [phases.install]
 cmds = [
-  # Add Ubuntu PPA that ships ffmpeg 6.x with *all* common filters enabled.
+  # Install full-filter FFmpeg 6.x
   "add-apt-repository -y ppa:jonathonf/ffmpeg-6",
   "apt-get update -y",
-  "apt-get install -y ffmpeg",          # overwrites the tiny repo build
-  # Install Python deps
+  "apt-get install -y ffmpeg",
+  # Python dependencies
   "pip install --upgrade pip",
   "pip install --no-cache-dir -r requirements.txt"
 ]
-
-###############################################################################
-# 3. Start command                                                            #
-###############################################################################
-[start]
-cmd = "python app.py"
