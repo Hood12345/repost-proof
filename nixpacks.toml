@@ -1,14 +1,12 @@
-[variables]
-NIXPACKS_PYTHON_VERSION = "3.11"
-
 [phases.setup]
-packages = ["curl", "gcc", "cacert"]
+aptPkgs = [
+  "software-properties-common"
+]
 
 [phases.install]
 cmds = [
-  'curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz -o /tmp/ffmpeg.tar.xz',
-  'tar -xJf /tmp/ffmpeg.tar.xz --wildcards --strip-components=1 -C /usr/local "*/ffmpeg" "*/ffprobe"',
-  'chmod +x /usr/local/ffmpeg /usr/local/ffprobe',
-  'python3 -m pip install --upgrade pip',
-  'python3 -m pip install --no-cache-dir -r requirements.txt'
+  # Add the “jonathonf” FFmpeg PPA (Ubuntu) or swap for Debian bullseye-backports
+  "add-apt-repository ppa:jonathonf/ffmpeg-4 -y",
+  "apt-get update -y",
+  "apt-get install -y ffmpeg"
 ]
