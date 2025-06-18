@@ -33,7 +33,7 @@ def repost_proof():
         if result.returncode != 0:
             print("[ERROR] FFmpeg stderr:")
             print(result.stderr)
-            raise Exception("FFmpeg processing failed")
+            raise RuntimeError(result.stderr.strip())
 
         size = os.path.getsize(output_path)
         file_too_large = size > 50 * 1024 * 1024
@@ -56,7 +56,10 @@ def repost_proof():
     except Exception as e:
         print("[EXCEPTION] Something went wrong during processing:")
         print(traceback.format_exc())
-        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+        return jsonify({
+            "error": "Internal server error",
+            "details": str(e)
+        }), 500
     finally:
         try:
             os.remove(input_path)
