@@ -11,6 +11,19 @@ app = Flask(__name__)
 UPLOAD_DIR = "/tmp/repostproof"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+def cleanup_tmp_folder():
+    """Delete all files in the upload folder"""
+    print("[CLEANUP] Cleaning up temporary folder...")
+    for f in os.listdir(UPLOAD_DIR):
+        try:
+            os.remove(os.path.join(UPLOAD_DIR, f))
+        except Exception as e:
+            print(f"[CLEANUP ERROR] Could not delete {f}: {e}")
+    print("[CLEANUP] Done.")
+
+# Clean up any leftover files when the app starts
+cleanup_tmp_folder()
+
 @app.route("/repost-proof", methods=["POST"])
 def repost_proof():
     if 'file' not in request.files:
@@ -61,10 +74,8 @@ def repost_proof():
             "details": str(e)
         }), 500
     finally:
-        try:
-            os.remove(input_path)
-        except:
-            pass
+        # Clean up all old files after each run
+        cleanup_tmp_folder()
 
 @app.route("/file-download/<filename>")
 def download_file(filename):
