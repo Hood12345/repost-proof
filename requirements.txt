@@ -1,3 +1,4 @@
 Flask
+gunicorn
 uuid
 numpy==1.26.4
