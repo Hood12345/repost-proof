@@ -59,7 +59,7 @@ def build_ffmpeg_command(input_path, output_path):
         "-c:v", "libx264",
         "-crf", str(crf),
         "-g", str(gop),
-        "-preset", "ultrafast",
+        "-preset", "veryfast",
         "-c:a", "aac",
         "-b:a", "128k",
         output_path
