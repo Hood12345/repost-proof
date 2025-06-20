@@ -7,6 +7,7 @@ import time
 from utils.ffmpeg_mods import build_ffmpeg_command
 
 app = Flask(__name__)
+print("[DEBUG] Flask app initialized")
 
 UPLOAD_DIR = "/tmp/repostproof"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
@@ -86,3 +87,4 @@ def download_file(filename):
         return "File not found", 404
 
 print("[BOOT] App module loaded for Gunicorn")
+print("[DEBUG] Flask app fully loaded")
