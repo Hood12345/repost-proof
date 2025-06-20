@@ -75,4 +75,5 @@ def download_file(filename):
         return "File not found", 404
 
 if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5000)
+    port = int(os.environ.get("PORT", 5000))  # Railway will override this
+    app.run(debug=False, host="0.0.0.0", port=port)
