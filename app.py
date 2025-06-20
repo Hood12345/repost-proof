@@ -75,6 +75,4 @@ def download_file(filename):
         return "File not found", 404
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    print(f"[BOOT] Flask app starting on port {port}")
-    app.run(debug=False, host="0.0.0.0", port=port)
+    print("[BOOT] App module loaded for Gunicorn")
