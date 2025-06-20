@@ -94,5 +94,6 @@ def download_file(filename):
         return "File not found", 404
 
 if __name__ == "__main__":
-    clean_old_files(UPLOAD_DIR)  # Clean existing leftover files at startup
-    print("[BOOT] App module loaded for Gunicorn")
+    # Only used for local dev, not needed in Railway
+    from waitress import serve
+    serve(app, host="0.0.0.0", port=8080)
