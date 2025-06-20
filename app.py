@@ -4,6 +4,7 @@ import uuid
 import subprocess
 import traceback
 import time
+from datetime import datetime, timedelta
 from utils.ffmpeg_mods import build_ffmpeg_command
 
 app = Flask(__name__)
@@ -11,8 +12,26 @@ app = Flask(__name__)
 UPLOAD_DIR = "/tmp/repostproof"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+def clean_old_files(directory, max_age_minutes=60):
+    now = time.time()
+    deleted_files = 0
+    for filename in os.listdir(directory):
+        path = os.path.join(directory, filename)
+        if os.path.isfile(path):
+            file_age_minutes = (now - os.path.getmtime(path)) / 60
+            if file_age_minutes > max_age_minutes:
+                try:
+                    os.remove(path)
+                    deleted_files += 1
+                except Exception as e:
+                    print(f"[CLEANUP ERROR] Couldn't delete {path}: {e}")
+    if deleted_files:
+        print(f"[CLEANUP] Deleted {deleted_files} old files from {directory}")
+
 @app.route("/repost-proof", methods=["POST"])
 def repost_proof():
+    clean_old_files(UPLOAD_DIR)  # Cleanup before processing
+
     if 'file' not in request.files:
         return jsonify({"error": "No file uploaded"}), 400
 
@@ -75,4 +94,5 @@ def download_file(filename):
         return "File not found", 404
 
 if __name__ == "__main__":
+    clean_old_files(UPLOAD_DIR)  # Clean existing leftover files at startup
     print("[BOOT] App module loaded for Gunicorn")
